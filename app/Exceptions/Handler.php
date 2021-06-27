@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use App\Http\Response\PreConfigResponse;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -14,6 +16,7 @@ class Handler extends ExceptionHandler
      */
     protected $dontReport = [
         //
+        MethodNotAllowedHttpException::class
     ];
 
     /**
@@ -37,5 +40,16 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $e)
+    {
+        if( $e instanceof MethodNotAllowedHttpException ){
+            return resolve(PreConfigResponse::class)->getByCode(405)->getResponse();
+        }
+
+        \Log::error('Exception in app: '.$e->getMessage(), ['exception' => $e]);
+        return resolve(PreConfigResponse::class)->getByCode(500)->getResponse();
+//        return parent::render($request, $e);
     }
 }
