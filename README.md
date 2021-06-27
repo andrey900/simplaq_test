@@ -1,5 +1,7 @@
 ## How start
 
+Required: php ^7.3 | ^8.0
+
 ```
 git clone https://github.com/andrey900/simplaq_test.git
 cd simplaq_test
