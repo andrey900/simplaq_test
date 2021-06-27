@@ -16,6 +16,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('api')->group(function (){
+    Route::get('/', function (){
+        return resolve(PreConfigResponse::class)->getResponse();
+    });
+
     Route::get('/status', function (Request $request) {
         return resolve(PreConfigResponse::class)->getResponse();
     });

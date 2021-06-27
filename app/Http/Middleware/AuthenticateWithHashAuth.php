@@ -13,7 +13,6 @@ namespace App\Http\Middleware;
 
 
 use App\Http\Response\PreConfigResponse;
-use Illuminate\Http\Response;
 
 class AuthenticateWithHashAuth
 {

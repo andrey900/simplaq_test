@@ -24,7 +24,7 @@ class Pagen
     protected $limit = 10;
     protected $uri;
 
-    public function __construct($total)
+    public function __construct(int $total)
     {
         $this->total = $total > 0 ? $total : 0;
     }
@@ -45,6 +45,10 @@ class Pagen
         $this->uri = $request->getRequestUri();
     }
 
+    /**
+     * @param Request $request
+     * @return bool | string
+     */
     public function validateLimitRequest(Request $request)
     {
         $validated = Validator::make([
@@ -60,6 +64,10 @@ class Pagen
         return $validated->errors()->get('limit')[0];
     }
 
+    /**
+     * @param Request $request
+     * @return bool | string
+     */
     public function validatePageRequest(Request $request)
     {
         $validated = Validator::make([
@@ -75,6 +83,9 @@ class Pagen
         return $validated->errors()->get('page')[0];
     }
 
+    /**
+     * @return array
+     */
     public function getData()
     {
         $items = $this->getTotal() - $this->getOffset();
@@ -91,6 +102,9 @@ class Pagen
         ];
     }
 
+    /**
+     * @return array
+     */
     public function getPagenData()
     {
         $data = $this->getData();
@@ -112,21 +126,41 @@ class Pagen
         return $data;
     }
 
+    /**
+     * Get current page number
+     *
+     * @return int
+     */
     public function getCurrent()
     {
         return $this->current;
     }
 
+    /**
+     * Get all items count
+     *
+     * @return int|int
+     */
     public function getTotal()
     {
         return $this->total;
     }
 
+    /**
+     * Get items count in per page
+     *
+     * @return int
+     */
     public function getLimit()
     {
         return $this->limit;
     }
 
+    /**
+     * Set the counts of items per page
+     *
+     * @param int $limit
+     */
     public function setLimit(int $limit)
     {
         if( $limit <= $this->maxLimit && $limit > 0 ){
@@ -134,11 +168,22 @@ class Pagen
         }
     }
 
+    /**
+     * Get offset for sql or other query
+     *
+     * @return float|int
+     */
     public function getOffset()
     {
         return ($this->getCurrent()-1)*$this->getLimit();
     }
 
+    /**
+     * Generate validate uri for page
+     *
+     * @param $pageNum
+     * @return mixed|string
+     */
     protected function getUrlForPage($pageNum)
     {
         $pageUri = $this->uri;
@@ -154,6 +199,9 @@ class Pagen
         return $pageUri;
     }
 
+    /**
+     * @return int
+     */
     public function getPrev()
     {
         $page = $this->getCurrent()-1;
@@ -164,6 +212,9 @@ class Pagen
         return $page;
     }
 
+    /**
+     * @return int
+     */
     public function getNext()
     {
         $page = $this->getCurrent()+1;
@@ -174,8 +225,15 @@ class Pagen
         return $page;
     }
 
+    /**
+     * @return float|int
+     */
     public function getLast()
     {
-        return ceil($this->getTotal() / $this->getLimit());
+        $lastPage = ceil($this->getTotal() / $this->getLimit());
+        if( $lastPage == 0 ){
+            $lastPage = 1;
+        }
+        return $lastPage;
     }
 }

@@ -30,9 +30,16 @@ class CustomersController extends Controller
         ]
     ];
 
+    private $dataRegistry;
+
+    public function __construct(Registry $dataRegistry)
+    {
+        $this->dataRegistry = $dataRegistry;
+    }
+
     public function index(Request $request)
     {
-        $registry = resolve(Registry::class);
+        $registry = $this->dataRegistry;
 
         if( $request->has('search') ){
             $search = $request->get('search');
@@ -46,11 +53,10 @@ class CustomersController extends Controller
             $registry->search($search);
         }
 
-        $sortFields = $request->get('sort', '');
-        if( $sortFields ){
+        if( $request->has('sort') ){
             $sortHelper = resolve(Sort::class);
             $sortHelper->setFields(['id', 'points', 'redeems']);
-            $orderFields = $sortHelper->getFieldsFromStr($sortFields);
+            $orderFields = $sortHelper->getFieldsFromStr($request->get('sort', ''));
             $error = $sortHelper->validateFields($orderFields->toArray());
             if( $error ){
                 return resolve(\App\Http\Response\PreConfigResponse::class)->getByCode(400, $error)->getResponse();
@@ -94,9 +100,8 @@ class CustomersController extends Controller
 
     public function show(Request $request, $id)
     {
-        $registry = resolve(Registry::class);
+        $item = $this->dataRegistry->find($id)->getItems();
 
-        $item = $registry->find($id)->getItems();
         if( $item->isEmpty() ){
             return resolve(\App\Http\Response\PreConfigResponse::class)->getByCode(404)->getResponse();
         }

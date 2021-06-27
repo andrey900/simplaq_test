@@ -27,6 +27,12 @@ class Sort
         'id'
     ];
 
+    /**
+     * Set default order params
+     *
+     * @param $field
+     * @param $type
+     */
     public function setDefault($field, $type)
     {
         if( !in_array($field, $this->fields) ){
@@ -38,11 +44,22 @@ class Sort
         ];
     }
 
+    /**
+     * Set allowed sortable fields
+     *
+     * @param array $arFields
+     */
     public function setFields(array $arFields)
     {
         $this->fields = $arFields;
     }
 
+    /**
+     * Validate fields for allowed for ordering
+     *
+     * @param array $fields
+     * @return array|bool
+     */
     public function validateFields(array $fields)
     {
         foreach ($fields as $field){
@@ -65,6 +82,12 @@ class Sort
         return false;
     }
 
+    /**
+     * Get order fields from request string
+     *
+     * @param $str
+     * @return \Illuminate\Support\Collection
+     */
     public function getFieldsFromStr($str)
     {
         $fields = $this->parseSortStr($str);
@@ -82,6 +105,12 @@ class Sort
         return 'asc';
     }
 
+    /**
+     * Parse order request string by field => type
+     *
+     * @param $sortStr
+     * @return \Illuminate\Support\Collection
+     */
     public function parseSortStr($sortStr)
     {
         $this->rawSort = $sortStr;
