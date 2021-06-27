@@ -467,16 +467,19 @@ class Registry
         $this->items = collect($this->data);
     }
 
-    public function getItems()
+    public function get()
     {
         return $this->items->map(function ($e){
             $model = resolve(Customer::class);
             $model->setRawAttributes($e);
+            $model = resolve(\App\ModelDataProxy\Customer::class, ['model' => $model]);
+            $model->enableLink();
+            $model->setHideFields(['created_at', 'updated_at', 'gender']);
             return $model;
         });
     }
 
-    public function sort(array $arOrder)
+    public function sort(iterable $arOrder)
     {
         $order = [];
         foreach ($arOrder as $f => $t){
@@ -508,7 +511,7 @@ class Registry
         return $this;
     }
 
-    public function get()
+    public function getItems()
     {
         return $this->items;
     }

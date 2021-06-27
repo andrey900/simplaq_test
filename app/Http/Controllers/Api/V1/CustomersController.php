@@ -16,6 +16,7 @@ use App\Data\Registry;
 use App\Helpers\Pagen;
 use App\Helpers\Sort;
 use App\Http\Controllers\Controller;
+use App\ModelDataProxy\Customer;
 use Illuminate\Http\Request;
 
 
@@ -56,13 +57,14 @@ class CustomersController extends Controller
         if( $request->has('sort') ){
             $sortHelper = resolve(Sort::class);
             $sortHelper->setFields(['id', 'points', 'redeems']);
+
             $orderFields = $sortHelper->getFieldsFromStr($request->get('sort', ''));
             $error = $sortHelper->validateFields($orderFields->toArray());
             if( $error ){
                 return resolve(\App\Http\Response\PreConfigResponse::class)->getByCode(400, $error)->getResponse();
             }
 
-            $registry->sort($sortHelper->parseSortStr($sortFields)->toArray());
+            $registry->sort($sortHelper->parseSortStr($request->get('sort', '')));
         }
 
         $total = $registry->count();
@@ -92,7 +94,7 @@ class CustomersController extends Controller
             ->setData([
                 'pagen' => $pagen->getPagenData(),
                 'meta' => $meta,
-                'items' => $registry->getItems()->slice($pagen->getOffset(), $pagen->getLimit())->values(),
+                'items' => $registry->get()->slice($pagen->getOffset(), $pagen->getLimit())->values(),
                 'allow_actions' => $this->actions
             ])
             ->getResponse();
@@ -100,16 +102,23 @@ class CustomersController extends Controller
 
     public function show(Request $request, $id)
     {
-        $item = $this->dataRegistry->find($id)->getItems();
+        $item = $this->dataRegistry->find($id)->get();
 
         if( $item->isEmpty() ){
             return resolve(\App\Http\Response\PreConfigResponse::class)->getByCode(404)->getResponse();
         }
 
+        /**
+         * @var $item Customer
+         */
+        $item = $item->first();
+        $item->disableLink();
+        $item->setHideFields([]);
+
         return resolve(\App\Http\Response\PreConfigResponse::class)
             ->getByCode(200)
             ->setData([
-                'item' => $item->values(),
+                'item' => $item,
                 'allow_actions' => $this->actions['item']
             ])
             ->getResponse();

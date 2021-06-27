@@ -13,11 +13,10 @@ namespace App\Http\Controllers\Api\V1;
 
 
 use App\Data\Registry;
-use Illuminate\Http\Request;
 
 class LocationsController
 {
-    public function index(Request $request)
+    public function index()
     {
         $registry = resolve(Registry::class);
         $registry->groupBy('location');
@@ -25,7 +24,7 @@ class LocationsController
         return resolve(\App\Http\Response\PreConfigResponse::class)
             ->getByCode(200)
             ->setData([
-                'items' => $registry->get()->keys(),
+                'items' => $registry->getItems()->keys(),
             ])
             ->getResponse();
     }
